@@ -104,7 +104,7 @@ class Knearest:
                 count = d[yy][c] + 1
                 d[yy].update({c: count})
             else: 
-                d[yy] = {c: 1}
+                d[yy].update({c: 1})
         return d
 
     @staticmethod

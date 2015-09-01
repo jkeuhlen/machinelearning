@@ -1,0 +1,18 @@
+HW 1: K Nearest Neighbors
+Joseph Keuhlen
+
+
+Analysis (5 points):
+
+What is the role of the number of training points to accuracy?
+What is the role of k to accuracy?
+What numbers get confused with each other most easily?
+
+1) As you increase the number of training points, you increase your accuracy.
+For example, (k=3 in all cases)
+# Training Points| 10  | 100 | 1000 | 10000 | 50000 |
+-----------------------------------------------------
+Accuracy         | 26% | 67% | 88%  |    |       |
+
+2) As you increase the number of neighbors you are comparing, you first increase your accuracy, then decrease it once k gets too large. If k is even, it also causes drops in accuracy. For a limited set of training data (at limit=500), k=3 is the best choice. For the limit=1000, k=1 is the best choice. For a much larger portion of the training set, (limit=10000), k=3 is the best choice again. 
+3) 7's and 2's, 5's and 3's, 6's and 5's, 8's and 3's, 5's and 8's, 9's and 4's, 9's and 7's
