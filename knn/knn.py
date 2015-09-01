@@ -97,9 +97,14 @@ class Knearest:
         d = defaultdict(dict)
         data_index = 0
         for xx, yy in zip(test_x, test_y):
-            data_index += 1
-            if data_index % 100 == 0:
-                print("%i/%i for confusion matrix" % (data_index, len(test_x)))
+            #if data_index % 100 == 0:
+            #    print("%i/%i for confusion matrix" % (data_index, len(test_x)))
+            c = self.classify(xx)
+            if c in d[yy]:
+                count = d[yy][c] + 1
+                d[yy].update({c: count})
+            else: 
+                d[yy] = {c: 1}
         return d
 
     @staticmethod
@@ -115,7 +120,8 @@ class Knearest:
         for ii in confusion_matrix:
             total += sum(confusion_matrix[ii].values())
             correct += confusion_matrix[ii].get(ii, 0)
-
+        print "Total:", total
+        print "Correct:", correct
         if total:
             return float(correct) / float(total)
         else:
