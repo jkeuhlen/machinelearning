@@ -1,18 +1,27 @@
 HW 1: K Nearest Neighbors
 Joseph Keuhlen
 
-
-Analysis (5 points):
-
-What is the role of the number of training points to accuracy?
-What is the role of k to accuracy?
-What numbers get confused with each other most easily?
-
 1) As you increase the number of training points, you increase your accuracy.
 For example, (k=3 in all cases)
+
 # Training Points| 10  | 100 | 1000 | 10000 | 50000 |
 -----------------------------------------------------
-Accuracy         | 26% | 67% | 88%  |    |       |
+% Accuracy       | 26% | 67% |  88% |  95%  |  97%   |
 
-2) As you increase the number of neighbors you are comparing, you first increase your accuracy, then decrease it once k gets too large. If k is even, it also causes drops in accuracy. For a limited set of training data (at limit=500), k=3 is the best choice. For the limit=1000, k=1 is the best choice. For a much larger portion of the training set, (limit=10000), k=3 is the best choice again. 
-3) 7's and 2's, 5's and 3's, 6's and 5's, 8's and 3's, 5's and 8's, 9's and 4's, 9's and 7's
+2) As you increase the number of neighbors you are comparing, you first increase your accuracy, then decrease it once k gets too large. If k is even, it also causes drops in accuracy since it provides median choices that are not in our label set (like 2.5). If we consider the best choice of k to be that which maximizes accuracy, then for a limited set of training data (at limit=500), k=3 is the best choice. For the limit=1000, k=1 is the best choice. For a much larger portion of the training set, (limit=10000), k=3 is the best choice again. The trend is also evident when we use the entire data set. 
+
+k Value    |   1   |   2   |   3   |   4   |   5   |   6   |   7   |
+--------------------------------------------------------------------
+% Accuracy | 97.1% | 95.1% | 97.3% | 96.1% | 97.1% | 96.4% | 97.1% |
+
+3) Several sets of numbers get confused with each other commonly. For example, when you look at each of the mislabellings for a trial of k=3 limit=50000 and find all of those that occur in double digits (which constitute at least 0.1% of all examples) several pairs pop up.
+
+		7's and 2's
+		5's and 3's
+		6's and 5's
+		8's and 3's
+		5's and 8's
+		9's and 4's
+		9's and 7's
+
+Each of these pairs makes sense as they constitute the numbers that look fairly similar: 2's and 7's both have diaganol lines with a top bar. 5's and 3's both have a curved bottom half, etc.
