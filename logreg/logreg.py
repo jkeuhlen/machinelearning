@@ -107,12 +107,12 @@ class LogReg:
         # Regularlized adds on the mu part. If you want unreg, mu=0 so the last part goes away
         val_pi =  pi(self.beta, train_example.x)
         for i in range(len(self.beta)):
-            if (i == 4 ):
-                print "beta: ", self.beta[i]
-                print "x: ", train_example.x[i]
-                print "pi: ", val_pi
             if (train_example.x[i] != 0):
-                self.beta[i] = (self.beta[i] + eta*(train_example.y-val_pi)*train_example.x[i])*(1-2*eta*self.mu)**m
+                self.beta[i] = (self.beta[i] + eta*(train_example.y-val_pi)*train_example.x[i])*(1-2*eta*self.mu)**(self.last_update[i] + 1)
+                self.last_update.update({i: 0})
+            else:
+                val = self.last_update[i] + 1
+                self.last_update.update({i: val})
 
         return self.beta
 
