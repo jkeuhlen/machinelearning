@@ -1,5 +1,5 @@
 import random
-from numpy import zeros, sign
+from numpy import zeros, sign, dot
 from math import exp, log
 from collections import defaultdict
 
@@ -98,9 +98,27 @@ class LogReg:
         :return: Return the new value of the regression coefficients
         """
 
-        # TODO: Implement updates in this function
+        eta = self.step(iteration)
+        # Unregularlized        
+        #for i in range(len(self.beta)-1):
+        #    val_pi =  pi(self.beta[i], train_example.x[i])
+        #    self.beta[i] = self.beta[i] + eta*(train_example.y-val_pi)*train_example.x[i]
+
+        # Regularlized adds on the mu part. If you want unreg, mu=0 so the last part goes away
+        val_pi =  pi(self.beta, train_example.x)
+        for i in range(len(self.beta)):
+            if (i == 4 ):
+                print "beta: ", self.beta[i]
+                print "x: ", train_example.x[i]
+                print "pi: ", val_pi
+            if (train_example.x[i] != 0):
+                self.beta[i] = (self.beta[i] + eta*(train_example.y-val_pi)*train_example.x[i])*(1-2*eta*self.mu)**m
 
         return self.beta
+
+def pi(beta, x):
+    val = (exp(dot(beta,x)))/(1+exp(dot(beta,x)))
+    return val
 
 
 def read_dataset(positive, negative, vocab, test_proportion=.1):
