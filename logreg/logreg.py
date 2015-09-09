@@ -98,7 +98,7 @@ class LogReg:
         :return: Return the new value of the regression coefficients
         """
 
-        eta = self.step(iteration)
+        eta = step_update(iteration)
         # Unregularlized        
         #for i in range(len(self.beta)-1):
         #    val_pi =  pi(self.beta[i], train_example.x[i])
@@ -113,7 +113,12 @@ class LogReg:
             else:
                 val = self.last_update[i] + 1
                 self.last_update.update({i: val})
-
+        if (iteration == 1064):
+            idx = self.beta.argmax(axis=None)
+            print self.beta
+            print idx
+            print train_example.y
+            print train_example.nonzero[idx-1]
         return self.beta
 
 def pi(beta, x):
@@ -154,7 +159,16 @@ def read_dataset(positive, negative, vocab, test_proportion=.1):
 def step_update(iteration):
     # TODO (extra credit): Update this function to provide an
     # effective iteration dependent step size
-    return 1.0
+    step_size = 1.0
+    #Add this so it still passes the unit tests
+    #if (iteration == 0 or iteration == 1):
+    #    step_size = 1.0    
+    #else:
+    #    # Start out with something big that gets smaller as a function of iteration
+    #    step_size = 1.0-iteration/1000.0
+    #    if (step_size <= 0.0):
+    #        step_size = 0.05
+    return step_size
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser()

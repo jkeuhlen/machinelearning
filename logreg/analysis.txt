@@ -5,3 +5,20 @@ Joseph Keuhlen
 2) How many passes over the data do you need to complete?
 3) What words are the best predictors of each class? How (mathematically) did you find them?
 4) What words are the poorest predictors of classes? How (mathematically) did you find them?
+
+1) The learning rate determines how fast we reach the maximum and how close to the maximum we can get. If the learning rate is too low, it will take a very long time to reach the maximum and might require several additional passes. If it is too large, we might overshoot the maximum and prevent getting close to the optimum range. 
+
+2) More passes over the data generally produces more accurate results. However, a single pass still produces very good results. Eventually, accuracy will hit a plateau for the training data and will overfit to the held-out data. This can be seen in the transition from 4-5 passes when the training accuracy hits its maximum and the held-out accuracy decreases from the previous value.
+	passes | update |   TA   |   HA   |
+	   1   |  1061  | 96.52% | 93.23% |
+	   2   |  2126  | 98.96% | 93.99% |
+	   3   |  3191  | 99.62% | 94.74% |
+	   4   |  4256  | 99.72% | 95.49% |
+	   5   |  5316  | 99.91% | 93.99% |
+
+***3) The words that are the best predictors of a class are those at the extremes of the probability spectrum. These correspond to the highest and lowest beta values. A very high beta value corresponds to a word that is most likely in the current class. A very low beta value corresponds to a word that is most likely in the other class. 
+
+***4) The worst predictors are those near the median beta value. This is because they have near equal likelyhood of being assoicated with either class. 
+
+Extra credit:
+1) 
