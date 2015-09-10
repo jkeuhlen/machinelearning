@@ -98,7 +98,7 @@ class LogReg:
         :return: Return the new value of the regression coefficients
         """
 
-        eta = step_update(iteration)
+        eta = self.step(iteration)
         # Unregularlized        
         #for i in range(len(self.beta)-1):
         #    val_pi =  pi(self.beta[i], train_example.x[i])
@@ -114,11 +114,14 @@ class LogReg:
                 val = self.last_update[i] + 1
                 self.last_update.update({i: val})
         if (iteration == 1064):
-            idx = self.beta.argmax(axis=None)
+            idx1 = self.beta.argmax(axis=None)
+            idx2 = self.beta.argmin(axis=None)
+            idx3 = self.beta.size/2
             print self.beta
-            print idx
+            print idx1, idx2, idx3
             print train_example.y
-            print train_example.nonzero[idx-1]
+            print train_example.nonzero
+            print train_example.nonzero[idx1], train_example.nonzero[idx2-1], train_example.nonzero[idx3-1]
         return self.beta
 
 def pi(beta, x):
