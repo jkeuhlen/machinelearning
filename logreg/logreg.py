@@ -1,5 +1,5 @@
 import random
-from numpy import zeros, sign, dot
+from numpy import zeros, sign, dot, where, median
 from math import exp, log
 from collections import defaultdict
 
@@ -113,15 +113,6 @@ class LogReg:
             else:
                 val = self.last_update[i] + 1
                 self.last_update.update({i: val})
-        if (iteration == 1064):
-            idx1 = self.beta.argmax(axis=None)
-            idx2 = self.beta.argmin(axis=None)
-            idx3 = self.beta.size/2
-            print self.beta
-            print idx1, idx2, idx3
-            print train_example.y
-            print train_example.nonzero
-            print train_example.nonzero[idx1], train_example.nonzero[idx2-1], train_example.nonzero[idx3-1]
         return self.beta
 
 def pi(beta, x):
@@ -208,3 +199,10 @@ if __name__ == "__main__":
                 ho_lp, ho_acc = lr.progress(test)
                 print("Update %i\tTP %f\tHP %f\tTA %f\tHA %f" %
                       (update_number, train_lp, ho_lp, train_acc, ho_acc))
+    # This code outputs the best indicator word for the baseball class, the best for the hockey class, and the worst (that could be etiher class)
+    idx1 = lr.beta.argmax(axis=None)
+    idx2 = lr.beta.argmin(axis=None)
+    idx3 = where(lr.beta==median(lr.beta))[0][0]
+    print idx1, idx2, idx3
+    print train[idx1].y, train[idx2].y
+    print vocab[idx1], vocab[idx2], vocab[idx3]
