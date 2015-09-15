@@ -1,3 +1,4 @@
+# Completed by Joseph Keuhlen
 from csv import DictReader, DictWriter
 
 import numpy as np
@@ -12,7 +13,8 @@ kTEXT_FIELD = 'sentence'
 
 class Featurizer:
     def __init__(self):
-        self.vectorizer = CountVectorizer()
+        # Go up to tri-gram
+        self.vectorizer = CountVectorizer(ngram_range=(1, 3))
 
     def train_feature(self, examples):
         return self.vectorizer.fit_transform(examples)
@@ -22,11 +24,12 @@ class Featurizer:
 
     def show_top10(self, classifier, categories):
         feature_names = np.asarray(self.vectorizer.get_feature_names())
+        print len(feature_names)
         if len(categories) == 2:
             top10 = np.argsort(classifier.coef_[0])[-10:]
             bottom10 = np.argsort(classifier.coef_[0])[:10]
-            print("Pos: %s" % " ".join(feature_names[top10]))
-            print("Neg: %s" % " ".join(feature_names[bottom10]))
+            print("Pos: %s" % ", ".join(feature_names[top10]))
+            print("Neg: %s" % ", ".join(feature_names[bottom10]))
         else:
             for i, category in enumerate(categories):
                 top10 = np.argsort(classifier.coef_[i])[-10:]
@@ -38,32 +41,63 @@ if __name__ == "__main__":
     train = list(DictReader(open("../data/spoilers/train.csv", 'r')))
     test = list(DictReader(open("../data/spoilers/test.csv", 'r')))
 
-    feat = Featurizer()
+#    feat = Featurizer()
+#
+#    labels = []
+#    for line in train:
+#        if not line[kTARGET_FIELD] in labels:
+#            labels.append(line[kTARGET_FIELD])
+#
+#    print("Label set: %s" % str(labels))
+#    x_train = feat.train_feature(x[kTEXT_FIELD] for x in train)
+#    x_test = feat.test_feature(x[kTEXT_FIELD] for x in test)
+#
+#    y_train = array(list(labels.index(x[kTARGET_FIELD])
+#                         for x in train))
+#    print(len(train), len(y_train))
+#    print(set(y_train))
+#
+#    # Train classifier
+#    lr = SGDClassifier(loss='log', penalty='l2', shuffle=True)
+#    lr.fit(x_train, y_train)
+#
+#    feat.show_top10(lr, labels)
+#
+#    predictions = lr.predict(x_test)
+#    o = DictWriter(open("predictions.csv", 'w'), ["id", "cat"])
+#    o.writeheader()
+#    for ii, pp in zip([x['id'] for x in test], predictions):
+#        d = {'id': ii, 'cat': labels[pp]}
+#        o.writerow(d)
 
-    labels = []
-    for line in train:
-        if not line[kTARGET_FIELD] in labels:
-            labels.append(line[kTARGET_FIELD])
+    # Create a development set from the training set
+    idx = int(round(len(train)*0.7))
+    idx2 = int(round(len(train)*0.3))
+    dev_train = train[:idx]
+    dev_test = train[-idx2:]
 
-    print("Label set: %s" % str(labels))
-    x_train = feat.train_feature(x[kTEXT_FIELD] for x in train)
-    x_test = feat.test_feature(x[kTEXT_FIELD] for x in test)
+    # Redo everything we just did but on the dev set to calc accuracy
+    dev_feat = Featurizer()
 
-    y_train = array(list(labels.index(x[kTARGET_FIELD])
-                         for x in train))
+    dev_labels = []
+    for line in dev_train:
+        if not line[kTARGET_FIELD] in dev_labels:
+            dev_labels.append(line[kTARGET_FIELD])
 
-    print(len(train), len(y_train))
-    print(set(y_train))
+    print("Label set: %s" % str(dev_labels))
+    dev_x_train = feat.train_feature(x[kTEXT_FIELD] for x in dev_train)
+    dev_x_test = feat.test_feature(x[kTEXT_FIELD] for x in dev_test)
+
+    dev_y_train = array(list(dev_labels.index(x[kTARGET_FIELD])
+                         for x in dev_train))
+    print(len(dev_train), len(dev_y_train))
+    print(set(dev_y_train))
 
     # Train classifier
-    lr = SGDClassifier(loss='log', penalty='l2', shuffle=True)
-    lr.fit(x_train, y_train)
+    dev_lr = SGDClassifier(loss='log', penalty='l2', shuffle=True)
+    dev_lr.fit(dev_x_train, dev_y_train)
 
-    feat.show_top10(lr, labels)
+    dev_feat.show_top10(dev_lr, dev_labels)
 
-    predictions = lr.predict(x_test)
-    o = DictWriter(open("predictions.csv", 'w'), ["id", "cat"])
-    o.writeheader()
-    for ii, pp in zip([x['id'] for x in test], predictions):
-        d = {'id': ii, 'cat': labels[pp]}
-        o.writerow(d)
+    dev_predictions = dev_lr.predict(dev_x_test)
+    # Now use dev_predictions and dev_y_train to compute accuracy
