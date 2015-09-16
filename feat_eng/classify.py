@@ -4,7 +4,7 @@ from csv import DictReader, DictWriter
 import numpy as np
 from numpy import array
 
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, ENGLISH_STOP_WORDS
 from sklearn.linear_model import SGDClassifier
 
 kTARGET_FIELD = 'spoiler'
@@ -13,8 +13,10 @@ kTEXT_FIELD = 'sentence'
 
 class Featurizer:
     def __init__(self):
-        # Go up to tri-gram
-        self.vectorizer = CountVectorizer(ngram_range=(1, 3))
+        # Build a list of stop words that I don't want to use as features. These are often '.' but maybe other ones down the road
+        my_stop_words = ['.', '(', ')', ' ', ' .', '..']
+        stop_words = ENGLISH_STOP_WORDS.union(my_stop_words)
+        self.vectorizer = CountVectorizer(analyzer='char',ngram_range=(1,10), stop_words=stop_words, min_df=0.01)
 
     def train_feature(self, examples):
         return self.vectorizer.fit_transform(examples)
@@ -28,8 +30,8 @@ class Featurizer:
         if len(categories) == 2:
             top10 = np.argsort(classifier.coef_[0])[-10:]
             bottom10 = np.argsort(classifier.coef_[0])[:10]
-            print("Pos: %s" % ", ".join(feature_names[top10]))
-            print("Neg: %s" % ", ".join(feature_names[bottom10]))
+            print("Pos:%s" % ",".join(feature_names[top10]))
+            print("Neg:%s" % ",".join(feature_names[bottom10]))
         else:
             for i, category in enumerate(categories):
                 top10 = np.argsort(classifier.coef_[i])[-10:]
@@ -85,8 +87,8 @@ if __name__ == "__main__":
             dev_labels.append(line[kTARGET_FIELD])
 
     print("Label set: %s" % str(dev_labels))
-    dev_x_train = feat.train_feature(x[kTEXT_FIELD] for x in dev_train)
-    dev_x_test = feat.test_feature(x[kTEXT_FIELD] for x in dev_test)
+    dev_x_train = dev_feat.train_feature(x[kTEXT_FIELD] for x in dev_train)
+    dev_x_test = dev_feat.test_feature(x[kTEXT_FIELD] for x in dev_test)
 
     dev_y_train = array(list(dev_labels.index(x[kTARGET_FIELD])
                          for x in dev_train))
@@ -100,4 +102,10 @@ if __name__ == "__main__":
     dev_feat.show_top10(dev_lr, dev_labels)
 
     dev_predictions = dev_lr.predict(dev_x_test)
-    # Now use dev_predictions and dev_y_train to compute accuracy
+    # Now use dev_predictions and dev_test[i][kTARGET_FIELD] to compute accuracy
+    count = len(dev_predictions)
+    accuracy = 0
+    for i in range(0, count):
+        if (str(bool(dev_predictions[i])) == dev_test[i][kTARGET_FIELD]):
+            accuracy += 1
+    print "Accuracy: ", float(accuracy)/count*100.0

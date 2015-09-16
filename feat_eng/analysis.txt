@@ -1,0 +1,26 @@
+First, I developed a method to test my accuracy. I set aside 30% of my training set to use as a test in the development set and all accuracy data comes from this developement set. 
+Since the feature order seen is slightly randomized, I ran each trial a few times and recorded the min/max observed:
+
+Bare bones (no changes): 55.78%/62.23%
+Bigram Only: 61.29%/61.80%
+Up-to Bigram: 62.01%/63.40%
+Up-To Trigram: 63.22%/64.62%
+Trigram only: 57.72%/58.02%
+Bigram and Trigram: 60.74%/61.15%
+Upto 10-grams: 62.64%/64.04%
+
+One of the best indications of a spoiler is if someone dies in the show. Therefore using character-grams within word boundaries (to capture kill and kills with the same feature) should improve accuracy further. 
+I repeated my analysis of the accuracy in the same manner, each of these trials is for character-n-grams within word boundaries. 
+
+1-gram: 50.06%/54.27%
+Upto 2-gram: 51.09%/58.22%
+Upto 3-gram: 49.97%/65.66%
+Upto 4-gram: 54.02%/63.09%
+Upto 10-gram: 50.24%/67.22%
+
+I want to improve this further by allowing both char-grams and word-grams. This can be done by switching the char_wb option to char and using a high n-gram limit. I also wanted to remove certain words that might appear too much and thus created a list of stop-words based on sklearn's list as well as my own observations of commonly occuring garbage. 
+
+Upto 10-character-gram with stop-words: 64.46%/66.07%
+
+This seemed to improve the accuracy slightly. To further improve the accuracy, the feature list could be better analyzed to find more stop words to use. Instead, I am going to consider the occurence of features when adding them by using the document_frequency functionality in sklearn.CountVectorizer.
+
