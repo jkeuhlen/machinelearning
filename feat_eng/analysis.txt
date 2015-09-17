@@ -22,5 +22,8 @@ I want to improve this further by allowing both char-grams and word-grams. This 
 
 Upto 10-character-gram with stop-words: 64.46%/66.07%
 
-This seemed to improve the accuracy slightly. To further improve the accuracy, the feature list could be better analyzed to find more stop words to use. Instead, I am going to consider the occurence of features when adding them by using the document_frequency functionality in sklearn.CountVectorizer.
+This seemed to improve the accuracy slightly. To further improve the accuracy, we have a couple of options.
+1) The feature list could be better analyzed to find more stop words to use. 
+2) Consider the occurence of features when adding them (for example, the character string 'il' may appear a lot. Is this good or bad?). Manual selection of the minimum/maximum is required here. 
+3) Customize the vectorizer by adding a custom callable function to analyze the features with that will look at both character-grams and word-grams. 
 

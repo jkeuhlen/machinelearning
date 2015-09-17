@@ -4,6 +4,7 @@ from csv import DictReader, DictWriter
 import numpy as np
 from numpy import array
 import re
+from collections import Counter
 
 from sklearn.feature_extraction.text import CountVectorizer, ENGLISH_STOP_WORDS, HashingVectorizer
 from sklearn.linear_model import SGDClassifier
@@ -12,21 +13,31 @@ kTARGET_FIELD = 'spoiler'
 kTEXT_FIELD = 'sentence'
 
 def words_and_char_grams(examples):
-    words = re.findall('\w+', examples)
-    #bigrams = re.findall(r'\b\w+\b', examples)
-    #print bigrams
+    words = re.findall("\w+", examples)
+    bigrams = re.findall(r"\b\w+\s\w+", examples)
+    trigrams = re.findall(r"\b\w+\s\w+\s\w+", examples)
+    quadgrams = re.findall(r"\b\w+\s\w+\s\w+\s\w+", examples)
+    result = list()
+    for q in quadgrams:
+        result.append(q)
+    for t in trigrams:
+        result.append(t)
+    for b in bigrams:
+        result.append(b)
     for w in words:
-        yield w
+        result.append(w)
         for i in range(len(w)):
             for j in range (len(w)):
-                yield w[i:i+j]
+                result.append(w[i:i+j])
+    return result
+
 
 class Featurizer:
     def __init__(self):
         # Build a list of stop words that I don't want to use as features. These are often '.' but maybe other ones down the road
         my_stop_words = ['.', '(', ')', ' ', ' .', '..']
         stop_words = ENGLISH_STOP_WORDS.union(my_stop_words)
-        self.vectorizer = CountVectorizer(analyzer='char', ngram_range=(1,9), stop_words=stop_words)
+        self.vectorizer = CountVectorizer(analyzer='char', ngram_range=(1,10), stop_words=stop_words, max_df = 0.10, min_df = 0.001)
         #self.vectorizer = HashingVectorizer(analyzer='char', ngram_range=(1,50), stop_words=stop_words)
 
     def train_feature(self, examples):
@@ -100,7 +111,6 @@ if __name__ == "__main__":
     print("Label set: %s" % str(dev_labels))
     dev_x_train = dev_feat.train_feature(x[kTEXT_FIELD] for x in dev_train)
     dev_x_test = dev_feat.test_feature(x[kTEXT_FIELD] for x in dev_test)
-
     dev_y_train = array(list(dev_labels.index(x[kTARGET_FIELD])
                          for x in dev_train))
     print(len(dev_train), len(dev_y_train))
@@ -120,3 +130,4 @@ if __name__ == "__main__":
         if (str(bool(dev_predictions[i])) == dev_test[i][kTARGET_FIELD]):
             accuracy += 1
     print "Accuracy: ", float(accuracy)/count*100.0
+
