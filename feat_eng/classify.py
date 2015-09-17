@@ -35,12 +35,13 @@ def words_and_char_grams(examples):
 class Featurizer:
     def __init__(self):
         # Build a list of stop words that I don't want to use as features. These are often '.' but maybe other ones down the road
-        my_stop_words = ['.', '(', ')', ' ', ' .', '..']
+        my_stop_words = ['.', '(', ')', ' ', ' .', '..', ').', ' )', ' , ', ' ,']
         stop_words = ENGLISH_STOP_WORDS.union(my_stop_words)
-        self.vectorizer = CountVectorizer(analyzer='char', ngram_range=(1,10), stop_words=stop_words, max_df = 0.10, min_df = 0.001)
+        self.vectorizer = CountVectorizer(analyzer=words_and_char_grams, ngram_range=(1,10), stop_words=stop_words)
         #self.vectorizer = HashingVectorizer(analyzer='char', ngram_range=(1,50), stop_words=stop_words)
 
     def train_feature(self, examples):
+        print self.vectorizer.get_params()
         return self.vectorizer.fit_transform(examples)
 
     def test_feature(self, examples):
