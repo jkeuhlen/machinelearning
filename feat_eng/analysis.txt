@@ -34,7 +34,7 @@ Accuracy:  67.0349492672
 
 '|' is the delimiter between features here. I get a lot of non-word characters that aren't being stripped by my stop-word filtering for some reason. To fix this, I add a custom preprocessor to manipulate the words before they are tokenized. This didn't really help at all. So instead I switch gears again and said that since we are talking about spoilers, things that are quoted are most likely coming from the source and could contain a spoiler. My pre-processor was changed to remove anything that wasn't inside quotes to try that out. I also added tf-idf smoothing. This worked stupidly well with an accuracy around 66-68%
 
-Next up, go back to my custom analayzer and tokenize everything inside quotes. That didn't work either. Somehow still worse than just quotes. Fuck this.
+Next up, go back to my custom analayzer and tokenize everything inside quotes. That didn't work either. Somehow still worse than just quotes.
 
 
 

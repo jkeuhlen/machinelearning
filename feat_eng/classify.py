@@ -56,15 +56,18 @@ def my_preprocessor(examples):
     #punctuation = "!#$%&'()*+,-/:;<=>?@[\]^_`{|}~"
     #for c in punctuation:
     #    examples = examples.replace(c,"")
-    examples = re.sub(r'^[("].*[)"]$' , '',examples)
-    return examples
+    quotes = re.findall(r'[("].*[)"]' , '',examples)
+    result = list()
+    for q in quotes:
+        result.append(q)
+    return reuslt
 
 class Featurizer:
     def __init__(self):
         # Build a list of stop words that I don't want to use as features. These are often '.' but maybe other ones down the road
         my_stop_words = ['.', '(', ')', ' ', ' .', '..', ').', ' )', ' , ', ' ,']
         stop_words = ENGLISH_STOP_WORDS.union(my_stop_words)
-        self.vectorizer = CountVectorizer(analyzer='char_wb', ngram_range=(1,7), stop_words=stop_words, preprocessor=my_preprocessor, min_df = 1, max_df=1.0)
+        self.vectorizer = CountVectorizer(analyzer='char_wb', ngram_range=(1,7), stop_words='english', min_df = 1, max_df=1.0)
 
 
     def train_feature(self, examples):
@@ -139,8 +142,8 @@ if __name__ == "__main__":
 #            dev_labels.append(line[kTARGET_FIELD])
 #
 #    print("Label set: %s" % str(dev_labels))
-#    dev_x_train = dev_feat.train_feature(x[kTEXT_FIELD] for x in dev_train)
-#    dev_x_test = dev_feat.test_feature(x[kTEXT_FIELD] for x in dev_test)
+#    dev_x_train = dev_feat.train_feature(x[kTEXT_FIELD]+x['trope'] for x in dev_train)
+#    dev_x_test = dev_feat.test_feature(x[kTEXT_FIELD]+x['trope'] for x in dev_test)
 #    dev_y_train = array(list(dev_labels.index(x[kTARGET_FIELD])
 #                         for x in dev_train))
 #    print(len(dev_train), len(dev_y_train))
