@@ -22,8 +22,19 @@ I want to improve this further by allowing both char-grams and word-grams. This 
 
 Upto 10-character-gram with stop-words: 64.46%/66.07%
 
-This seemed to improve the accuracy slightly. To further improve the accuracy, we have a couple of options.
+This seemed to improve the accuracy slightly. To further improve the accuracy, we have a couple of easy options.
 1) The feature list could be better analyzed to find more stop words to use. 
 2) Consider the occurence of features when adding them (for example, the character string 'il' may appear a lot. Is this good or bad?). Manual selection of the minimum/maximum is required here. 
-3) Customize the vectorizer by adding a custom callable function to analyze the features with that will look at both character-grams and word-grams. 
+3) Customize the vectorizer by adding a custom callable function to analyze the features with that will look at both character-grams and word-grams.
+
+I first attempted #3, and wrote a custom function (words_and_char_grams) that returns every char-gram within word boundaries as well as every word n-gram upto n=4. For some reason, this dropped my accuracy significantly lower than just doing character n-grams. I noticed that my character n-grams do fairly well, for example a run with n=10: 
+Pos:ur|na| kill| kil| die|..| | ,| , | .
+Neg:.|9|(| i|s.| a | (|s,|)|t.
+Accuracy:  67.0349492672
+
+'|' is the delimiter between features here. I get a lot of non-word characters that aren't being stripped by my stop-word filtering for some reason. To fix this, I add a custom preprocessor to manipulate the words before they are tokenized. This didn't really help at all. So instead I switch gears again and said that since we are talking about spoilers, things that are quoted are most likely coming from the source and could contain a spoiler. My pre-processor was changed to remove anything that wasn't inside quotes to try that out. I also added tf-idf smoothing. This worked stupidly well with an accuracy around 66-68%
+
+Next up, go back to my custom analayzer and tokenize everything inside quotes. That didn't work either. Somehow still worse than just quotes. Fuck this.
+
+
 
