@@ -154,8 +154,16 @@ def origin_plane_hypotheses(dataset):
     """
 
     # TODO: Complete this function
-
-    yield OriginPlaneHypothesis(1.0, 0.0)
+    # Our hyperplanes are really just lines in two dimensional space.
+    # Since each goes through the origin, just try the vector that reaches each point in the dataset. Use a vector from each point and calculate its slope from the origin then define our lines using y=mx+b (b=0 always)
+    for vec in dataset:
+        print vec
+        x = vec[0]
+        y = vec[1]
+        slope = y/x
+    print OriginPlaneHypothesis(1.0, 0.0)
+    return list((1.0, 0.0))
+    # yield OriginPlaneHypothesis(1.0, 0.0)
 
 def plane_hypotheses(dataset):
     """
@@ -223,7 +231,6 @@ def rademacher_estimate(dataset, hypothesis_generator, num_samples=500,
 
     # TODO: complete this function
     return 0.0
-
 if __name__ == "__main__":
     print("Rademacher correlation of constant classifier %f" %
           rademacher_estimate(kSIMPLE_DATA, constant_hypotheses))
@@ -231,3 +238,4 @@ if __name__ == "__main__":
           rademacher_estimate(kSIMPLE_DATA, axis_aligned_hypotheses))
     print("Rademacher correlation of plane classifier %f" %
           rademacher_estimate(kSIMPLE_DATA, origin_plane_hypotheses))
+    origin_plane_hypotheses(kSIMPLE_DATA)
