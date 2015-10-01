@@ -27,14 +27,19 @@ class Classifier:
 
         assert all(x == 1 or x == -1 for x in labels), "Labels must be binary"
 
-        # TODO: implement this function
         # Correlation is 1/m * sum_i=1_to_m(y_i*h(x_i))
 
         m = len(data)
-        sum = 0
+        sum = 0.0
         for i in range(0,m):
-            sum += labels[i]*data[i] #Needs to be h(x)
-        cor = sum/m
+            #Convert hypothesis to +/- 1 from bool
+            h = self.classify(data[i])
+            if (h == True):
+                h = 1
+            else:
+                h = -1
+            sum += labels[i]*h
+        cor = sum/m #Notes have 1/2m? Double check this
 
         return cor
 
@@ -57,6 +62,10 @@ class PlaneHypothesis(Classifier):
         self._bias = b
 
     def __call__(self, point):
+        #print "Vector: ", self._vector
+        #print "Point: ", point
+        #print "Dot Product: ", self._vector.dot(point)
+        #print "Class: ", self._vector.dot(point) >= 0
         return self._vector.dot(point) - self._bias
 
     def classify(self, point):
@@ -171,7 +180,10 @@ def origin_plane_hypotheses(dataset):
         slope = y/x
         # Don't yield lines that have a slope already used
         if slope in a:
-            yield OriginPlaneHypothesis(x, y)
+            # We need to specify the normal vector to the decision boundary
+            #  So flip the order and sign 
+            yield OriginPlaneHypothesis(-y, x)
+            yield OriginPlaneHypothesis(y,-x)
         a.append(slope)
 
 def plane_hypotheses(dataset):
@@ -239,7 +251,30 @@ def rademacher_estimate(dataset, hypothesis_generator, num_samples=500,
     """
 
     # TODO: complete this function
-    return 0.0
+    # R(H) = E_sig[max_h_in_H(1/m*sum_i_m(sig_i*h(x_i)))]
+    # Do this whole thing num_samples times to get Expectation value
+    m = len(dataset)
+    sigma = coin_tosses(m, random_seed)
+    expecation_final = 0.0
+    for i in range(0,num_samples):
+        array = []
+        hyps = hypothesis_generator(dataset)
+        for h in hyps:
+            sum = 0.0
+            for i in range(0,m):
+                x = h.classify(dataset[i])
+                #Convert hypothesis to +/- 1 from bool
+                if (x == True):
+                    x = 1
+                else:
+                    x = -1
+                sum += sigma[i]*x
+            rad = sum/m
+            array.append(rad)
+        final = max(array)
+        expecation_final += final
+    expecation_final = expecation_final/num_samples
+    return expecation_final
 
 if __name__ == "__main__":
     print("Rademacher correlation of constant classifier %f" %
@@ -248,4 +283,3 @@ if __name__ == "__main__":
           rademacher_estimate(kSIMPLE_DATA, axis_aligned_hypotheses))
     print("Rademacher correlation of plane classifier %f" %
           rademacher_estimate(kSIMPLE_DATA, origin_plane_hypotheses))
-    origin_plane_hypotheses(kSIMPLE_DATA)

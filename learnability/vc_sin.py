@@ -62,7 +62,20 @@ def train_sin_classifier(data):
 
     # TODO: Compute a frequency that will correctly classify the dataset
     frequency = 1.0
-    return SinClassifier(frequency * pi)
+    for tup in data:
+        x = tup[0]
+        y = tup[1]
+        #Convert hypothesis to +/- 1 from bool
+        if (y == True):
+            y = 1
+        else:
+            y = -1
+        # Solve sin(w*x) = y for the set of equations to follow
+        # w = (1/x)*Arcsin(y)
+        # Arcsin(+1) = +pi/2
+        # Arcsin(-1) = -pi/2
+        frequency = 2**x*y*pi/2 
+    return SinClassifier(frequency*pi)
 
 if __name__ == "__main__":
     classifier = train_sin_classifier(kSIMPLE_TRAIN)
