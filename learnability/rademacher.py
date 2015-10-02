@@ -1,6 +1,6 @@
 from random import randint, seed
 from collections import defaultdict
-from math import atan, sin, cos, pi
+from math import atan, sin, cos, pi, radians
 
 from numpy import array
 from numpy.linalg import norm
@@ -170,9 +170,11 @@ def origin_plane_hypotheses(dataset):
 
     """
 
-    # TODO: Complete this function
     # Our hyperplanes are really just lines in two dimensional space.
     # Since each goes through the origin, just try the vector that reaches each point in the dataset. Use a vector from each point and calculate its slope from the origin then define our lines using y=mx+b (b=0 always)
+    # Skip points on the same line
+    # Use the normal vectors (each forces classification in one direction)
+    # In order to get unique classifications, we need to shift each decision boundary slightly. As in the picture, I'll make each line slightly steeper than the vector to points.
     a = []
     for vec in dataset:
         x = vec[0]
@@ -180,10 +182,15 @@ def origin_plane_hypotheses(dataset):
         slope = y/x
         # Don't yield lines that have a slope already used
         if slope in a:
-            # We need to specify the normal vector to the decision boundary
-            #  So flip the order and sign 
-            yield OriginPlaneHypothesis(-y, x)
-            yield OriginPlaneHypothesis(y,-x)
+            continue
+        # Rotate by 1 degree to get normal vector of slightly steeper line!
+        x = x*cos(radians(1))-y*sin(radians(1))
+        y = x*sin(radians(1))+y*cos(radians(1))
+        # We need to specify the normal vector to the decision boundary
+        #  So flip the order and sign 
+        # One sign change for each direction (+/- = left/right)
+        yield OriginPlaneHypothesis(-y, x)
+        yield OriginPlaneHypothesis(y,-x)
         a.append(slope)
 
 def plane_hypotheses(dataset):
@@ -215,8 +222,64 @@ def axis_aligned_hypotheses(dataset):
       dataset: The dataset to use to generate hypotheses
     """
 
-    # TODO: complete this function
-    yield AxisAlignedRectangle(0, 0, 0, 0)
+    # Based on VC-Dimension, we can only ever have 4 points
+    # Inside rectangles is positive
+    # 0 Positive - take x_min-1, y_min-1 make that a rectangle-point
+    # 1 Positive - each point is its own rectangle
+    # 2 Positive - each pair of points
+    # 3 Positive - much be contained within the extreme pairs
+    #  Need to make sure I'm not double-classifying somehow
+    # 4 Positive - x_min-x_max, y_min-y_max
+    
+    # Min/Max variables
+    x_min = 0
+    y_min = 0
+    x_max = 0
+    y_max = 0
+
+    # Create a BST and fill it with all of the points in the dataset
+    bst = BST()
+    map(bst.insert, dataset)
+    # list to hold pair combos
+    a = []
+
+    # Dataset is a list of tuples of points
+    for start_point in dataset:
+        start_x = start_point[0]
+        start_y = start_point[1]
+        yield AxisAlignedRectangle(start_x, start_y, start_x, start_y)
+        # Calculate min/maxes
+        if start_x > x_max:
+            x_max = start_x
+        elif start_x < x_min:
+            x_min = start_x
+        if start_y > y_max:
+            y_max = start_y
+        elif start_y < y_min:
+            y_min = start_y       
+        for end_point in dataset:
+            points_in_range = []
+            end_x = end_point[0]
+            end_y = end_point[1]
+            # Manipulate points that only cause half negative
+            if (end_x > start_x and end_y < start_y):
+                start_y = end_y
+            elif (end_x < start_x and end_y > start_y):
+                start_x = end_x
+            # Skip points that cause fully negative rectangles
+            if (end_x <= start_x and end_y <= start_y):
+                continue
+            points_in_range = map(lambda x: x.key, list(bst.range(start_point, end_point)))
+            if points_in_range in a:
+                continue
+            else:
+                yield AxisAlignedRectangle(start_x, start_y, end_x, end_y)
+                a.append(points_in_range)
+    # Get the 4 point cases
+    # All in
+    yield AxisAlignedRectangle(x_min-1, y_min-1, x_max+1, y_max+1)
+    # All out
+    yield AxisAlignedRectangle(x_min-1, y_min-1,x_min-1, y_min-1)
 
 
 def coin_tosses(number, random_seed=0):
@@ -251,12 +314,20 @@ def rademacher_estimate(dataset, hypothesis_generator, num_samples=500,
     """
 
     # TODO: complete this function
+    #for ii in xrange(num_samples):
+    #    if random_seed != 0:
+    #        rademacher = coin_tosses(len(dataset), random_seed + ii)
+    #    else:
+    #        rademacher = coin_tosses(len(dataset))
     # R(H) = E_sig[max_h_in_H(1/m*sum_i_m(sig_i*h(x_i)))]
     # Do this whole thing num_samples times to get Expectation value
     m = len(dataset)
-    sigma = coin_tosses(m, random_seed)
     expecation_final = 0.0
     for i in range(0,num_samples):
+        if random_seed != 0:
+            rademacher = coin_tosses(len(dataset), random_seed + i)
+        else:
+            rademacher = coin_tosses(len(dataset))
         array = []
         hyps = hypothesis_generator(dataset)
         for h in hyps:
@@ -268,7 +339,7 @@ def rademacher_estimate(dataset, hypothesis_generator, num_samples=500,
                     x = 1
                 else:
                     x = -1
-                sum += sigma[i]*x
+                sum += rademacher[i]*x
             rad = sum/m
             array.append(rad)
         final = max(array)
@@ -283,3 +354,4 @@ if __name__ == "__main__":
           rademacher_estimate(kSIMPLE_DATA, axis_aligned_hypotheses))
     print("Rademacher correlation of plane classifier %f" %
           rademacher_estimate(kSIMPLE_DATA, origin_plane_hypotheses))
+

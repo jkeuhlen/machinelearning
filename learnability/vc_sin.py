@@ -70,7 +70,7 @@ def train_sin_classifier(data):
             y = 1
         else:
             y = -1
-        frequency += 0.5*(1-y)*2**i
+        frequency += 0.5*(1-y)*2**x
     # w = pi(1+sum_i=0_to_m((1-y)/2*2**i))
     return SinClassifier(frequency*pi)
 
