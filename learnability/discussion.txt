@@ -10,7 +10,7 @@ Give an example of four points that cannot be shattered by this classifier. How 
 HW 4: Learnability
 Joseph Keuhlen
 
-1) 
+1) If we consider the "complexity" of the hypothesis classes to refer to the VC dimension of the individual hypothesis class, then ordering our classes is fairly straight forward. In class, we proved that for any arbitrary hyperplane with dimensionality d the VC dimension is d+1. We also showed that for 
 
 2)
 
