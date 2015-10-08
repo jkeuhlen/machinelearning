@@ -39,7 +39,10 @@ def find_support(x, y, w, b, tolerance=0.001):
     """
 
     support = set()
-    # TODO: IMPLEMENT THIS FUNCTION
+    # For points on boundary (support vectors) wx + b = +-1
+    for i in range(0, len(x)):
+      if (abs(w.dot(x[i])+b - 1) <= tolerance or abs(w.dot(x[i])+b + 1) <= tolerance):
+        support.add(i)
     return support
 
 
@@ -50,5 +53,12 @@ def find_slack(x, y, w, b):
     """
 
     slack = set()
-    # TODO: IMPLEMENT THIS FUNCTION
+    # Slack vectors are those that have the wrong sign
+    for i in range(0, len(x)):
+      if y[i] == 1:
+        if w.dot(x[i])+b <= 0:
+          slack.add(i)
+      else: # y[i] == -1
+        if w.dot(x[i])+b >= 0:
+          slack.add(i)
     return slack
