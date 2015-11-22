@@ -43,7 +43,7 @@ for i in range(0, len(data.train_y)):
         y.append(data.train_y[i])
         x.append(data.train_x[i])
 
-classifier = svm.SVC(C=0.01, kernel='linear')
+classifier = svm.SVC(C=0.1, kernel='linear')
 classified = classifier.fit(x, y)
 
 test_x = []
@@ -65,6 +65,6 @@ print "Accuracy: ", float(accuracy)/count*100.0
 svs = classifier.support_vectors_
 numpix = 28
 bp = [numpix*i for i in range(numpix+1)]
-image = [x[classified.support_[0]][bp[i]:bp[i+1]] for i in range(numpix)]
+image = [x[classified.support_[len(classified.support_)-1]][bp[i]:bp[i+1]] for i in range(numpix)]
 show(image)
 
