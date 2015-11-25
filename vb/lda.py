@@ -104,6 +104,9 @@ class VariationalBayes:
         """
 
         # TODO: Complete this function!
+
+        # phi_n_i = Norm: Beta_i_v * exp(Psi(gamma_i) - Psi(Sum(gamma_j)))
+
         return ones(len(gamma)) / float(len(gamma))
 
     def e_step(self, local_parameter_iteration=50):
@@ -169,6 +172,8 @@ class VariationalBayes:
         """
 
         # TODO: Finish this function!
+        # Beta_i_j = Sum(Sum(phi_d_n_i * w^j_d_n))
+
         new_beta = self._beta
         return new_beta
 
