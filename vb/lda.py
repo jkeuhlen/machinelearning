@@ -102,12 +102,18 @@ class VariationalBayes:
         Given gamma vector and complete beta, compute the phi for a word with a
         given count
         """
+        phi = ones(len(gamma))
 
         # TODO: Complete this function!
+        gamma_sum = sum(gamma)
+
 
         # phi_n_i = Norm: Beta_i_v * exp(Psi(gamma_i) - Psi(Sum(gamma_j)))
-
-        return ones(len(gamma)) / float(len(gamma))
+        for i in range(0, len(gamma)):
+            phi[i] = beta[i][word] * exp(digam(gamma[i])-digam(gamma_sum)) 
+        phi_sum = sum(phi)
+        norm_phi = [float(i)*count/phi_sum for i in phi]
+        return norm_phi
 
     def e_step(self, local_parameter_iteration=50):
         """
@@ -173,8 +179,14 @@ class VariationalBayes:
 
         # TODO: Finish this function!
         # Beta_i_j = Sum(Sum(phi_d_n_i * w^j_d_n))
+        i = 0
+        for row in topic_counts:
+            row_sum = sum(row)
+            row = row/row_sum
+            topic_counts[i] = row
+            i += 1
 
-        new_beta = self._beta
+        new_beta = topic_counts
         return new_beta
 
     def update_alpha(self, current_alpha=None, gamma=None):
